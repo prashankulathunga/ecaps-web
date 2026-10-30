@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/ecapscode-favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ecapscode | software partner</title>
+    <!-- LCP hero. imagesrcset/imagesizes mirror the <img> in Hero.tsx exactly,
+         so the preload matches whichever source the browser picks. -->
+    <link
+      rel="preload"
+      as="image"
+      imagesrcset="/hero-900.webp 900w, /hero.webp 2400w"
+      imagesizes="100vw"
+      fetchpriority="high"
+    />
   </head>
   <body>
     <div id="root"></div>

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { ArrowRight } from "lucide-react"
-import Seo from "@/components/Seo"
+import PageWrapper from "@/components/layout/PageWrapper"
 import Container from "@/components/layout/Container"
 import { useReveal } from "@/hooks/useReveal"
 import { cn } from "@/lib/utils"
@@ -455,13 +455,12 @@ function MotionSection() {
 
 function DesignSystem() {
 	return (
-		<>
-			<Seo
-				title="Design system"
-				description="Internal reference for ECAPS CODE design tokens."
-				path="/design-system"
-				noindex
-			/>
+		<PageWrapper
+			title="Design system"
+			description="Internal reference for ECAPS CODE design tokens."
+			path="/design-system"
+			noindex
+		>
 
 			<Container className="pt-24 pb-4">
 				<p className="text-caption text-foreground/60">Internal · noindex</p>
@@ -529,7 +528,7 @@ function DesignSystem() {
 			>
 				<MotionSection />
 			</DsSection>
-		</>
+		</PageWrapper>
 	)
 }
 

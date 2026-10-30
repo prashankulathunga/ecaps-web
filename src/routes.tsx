@@ -8,6 +8,7 @@ const Services = lazy(() => import("@/pages/Services"))
 const Projects = lazy(() => import("@/pages/Projects"))
 const About = lazy(() => import("@/pages/About"))
 const Contact = lazy(() => import("@/pages/Contact"))
+const Privacy = lazy(() => import("@/pages/Privacy"))
 const DesignSystem = lazy(() => import("@/pages/DesignSystem"))
 const NotFound = lazy(() => import("@/pages/NotFound"))
 
@@ -25,6 +26,7 @@ export const routes: RouteObject[] = [
 			{ path: "projects", element: <Projects /> },
 			{ path: "about", element: <About /> },
 			{ path: "contact", element: <Contact /> },
+			{ path: "privacy", element: <Privacy /> },
 			{ path: "design-system", element: <DesignSystem /> },
 			{ path: "*", element: <NotFound /> },
 		],

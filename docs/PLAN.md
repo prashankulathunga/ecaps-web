@@ -3,7 +3,7 @@
 Progress checklist for the build order in `CLAUDE.md`. Update after each task (Definition of done).
 Read `/docs/design-brief.md` before any UI work — it wins over any quick idea.
 
-**Status:** Phases 0 and 1 done (committed). Phase 2 built and awaiting approval. Prerendering deferred by decision on 2026-10-30 — was **blocked** — `vite-react-ssg` cannot install alongside `react-router-dom` v7 (see Phase 1). Awaiting a decision on how per-page OG tags are produced.
+**Status:** Phases 0-3 done. Phase 4a in progress — hero built, remaining Home blocks blocked on content. Card surface and `--muted-foreground` decided 2026-10-31 (see Phase 2). Prerendering deferred by decision on 2026-10-30 — was **blocked** — `vite-react-ssg` cannot install alongside `react-router-dom` v7 (see Phase 1). Awaiting a decision on how per-page OG tags are produced.
 
 ---
 
@@ -128,14 +128,34 @@ Recommendation: move `--muted-foreground` to **INK 70%**. Changing a token needs
 
 Built on top of `src/components/ui/` primitives. One commit per component group.
 
-- [ ] `Button` variants extended on the existing Base UI `ui/button.tsx`: pill, 48px height, 0 28px padding, inverted on dark sections
-- [ ] `Navbar` — sticky, slim 64px, blurred translucent background, logo left, 4-5 links + one CTA right; clean mobile menu with focus trap and Esc to close
-- [ ] `Footer` — grouped columns (Company / Services / Contact), contact details, social links, copyright
-- [ ] `Section` wrapper with a `tone="ink" | "mist"` prop to drive the alternating light/dark rhythm
-- [ ] `Card` — 24px radius, 32px padding, 1px SILVER border at low opacity, no heavy shadow
-- [ ] `WhatsAppButton` — fixed bottom-right, round, INK background, accessible label
-- [ ] `PageWrapper` composing Navbar + Footer + Seo
-- [ ] Screenshots at 3 widths → **Commit now**
+- [x] `Button` variants extended on the existing Base UI `ui/button.tsx`: pill, 48px height, 0 28px padding, inverted on dark sections
+- [x] `Navbar` — sticky, slim 64px, blurred translucent background, logo left, 4-5 links + one CTA right; clean mobile menu with focus trap and Esc to close
+- [x] `Footer` — grouped columns (Company / Services / Contact), contact details, social links, copyright
+- [x] `Section` wrapper with a `tone="ink" | "mist"` prop to drive the alternating light/dark rhythm
+- [x] `Card` — 24px radius, 32px padding, 1px SILVER border at low opacity, no heavy shadow
+- [x] `WhatsAppButton` — fixed bottom-right, round, INK background, accessible label
+- [x] `PageWrapper` composing Navbar + Footer + Seo
+- [ ] **Screenshots at 3 widths — NOT DONE**, same reason as Phase 2: no browser automation available. Substituted a `renderToString` check across Home, DesignSystem and NotFound — all render with navbar, skip link, footer and `<title>`, and the dev-only placeholder notes correctly disappear in a production build. Layout itself is unverified
+- [ ] Owner review of the components → then **Commit now**
+
+### Phase 3 notes
+
+**Mobile menu costs ~25.6 kB gzip.** It uses Base UI's `Dialog` in modal mode, which supplies the focus trap, Esc-to-close and scroll lock instead of hand-rolling them. The price is a new `PageWrapper` chunk of 75.8 kB raw / **25.6 kB gzip**, loaded with the first route and so effectively on the critical path. Attribution is a before/after delta, not an isolated measurement: no such chunk existed in the Phase 2 build and `Dialog` is the only heavy import Phase 3 added. Three ways to respond, for Phase 6 or sooner:
+
+| Option | Cost |
+|---|---|
+| Keep as is | 25.6 kB gzip on first load; correct a11y for free |
+| `React.lazy` the mobile dialog, load on first menu open | Keeps Base UI's correctness, removes it from first load. Desktop users never download it |
+| Hand-roll the menu | ~1 kB, but the focus trap, scroll lock and ARIA become ours to get right |
+
+Recommendation: **lazy-load the dialog** — it keeps the accessibility guarantees and the bundle target. Not done yet; it is a change to approved components.
+
+**Two gaps that need owner input, not code:**
+
+- **Navbar has 3 links, brief §7 asks for 4-5** (Services, Projects, About, plus the Contact CTA). There are no further pages to link. Either that is fine, or a page is missing from the sitemap
+- **Logo is a text wordmark.** Brief §10 describes an ECAPS CODE logo; no logo file exists in `src/assets`. Needs the asset (related to Inputs needed #6)
+
+**Added beyond the checklist:** a `/privacy` route pointing at a placeholder, so the Footer's Company column does not ship a link that 404s before Phase 4f. A skip-to-content link in `PageWrapper` for keyboard users. `src/data/navigation.ts` for nav structure.
 
 ## Phase 4 — Pages (priority order)
 
@@ -144,9 +164,52 @@ Every page follows the same loop: typed data file in `/src/data` → sections �
 
 ### 4a. Home
 - [ ] The 9 blocks of brief §11, in order: Navbar, Hero, What we do (3-4 service cards), Numbers strip, Featured projects + "View all", How we work (3-4 steps), Technologies logo row, closing CTA on INK, Footer
-- [ ] Hero: full-width cinematic background with dark overlay, short confident headline, one-line support text, primary + secondary button. Image `fetchpriority="high"`, explicit width and height, AVIF or WebP under 200KB
-- [ ] Propose 3 tagline options for selection before building the hero
+- [x] **Hero built**, then **redesigned 2026-10-31** to a full-bleed photograph with the page colour rising over it. No panel, no inset, no radius: the image runs edge to edge and dissolves into MIST at the bottom, so hero and page read as one surface. Real `<img>` with `fetchPriority`, explicit 2400×1358, `alt=""`, srcset + matching `imagesrcset` preload in `index.html`
+- [x] Propose 3 tagline options for selection before building the hero — **option B chosen 2026-10-31**
 - [ ] A visitor understands what ECAPS CODE does within 3 seconds
+
+### 4a notes — hero
+
+**Image.** `src/assets/hero.jpg` was 1.3 MB at 4084×2310, far over the 200 KB budget. Converted with
+`cwebp` (already on the machine, no dependency added) into `public/` so the preload can use a stable
+unhashed URL: `hero.webp` **108 KB** (2400×1358) and `hero-900.webp` **27 KB** (900×510). The original
+JPEG is untouched.
+
+**Colour.** The photo is in colour with a saturated yellow bouquet, breaking brief §3/§13, and brief §10
+specifies a black-and-white hero. Resolved with `filter: grayscale(1)` in CSS — zero bytes, zero
+dependencies, one line to revert.
+
+**Composition and contrast (redesigned).** With the bottom resolving to MIST, light text no longer
+works there, so the hero is light-toned and **all hero text is INK** — which also meant the navbar's
+dark-overlay styling had to go: over the hero it now drops only its background, and the type stays INK
+in both states.
+
+Gradient stops were set from a measurement rather than by eye. Sampling the photo's mean luma with
+`ffmpeg`:
+
+| Region | Mean luma |
+|---|---|
+| Lower-left, under the text block | **93/255** (darker than it looks) |
+| Bottom-left, under the buttons | 110/255 |
+| Top strip, under the navbar | 121/255 |
+
+At 93/255, INK body text needs at least **29% MIST coverage** to clear AA 4.5:1. The stops
+(`from-mist 0% → via-mist/90 38% → transparent 85%`) put ~59% coverage under the topmost text line,
+which measures about **7.9:1**. A second light wash at the top keeps the navbar legible over the
+121/255 region (~7.9:1 at the bar's lower edge). `object-position` is `58% center` on desktop and
+`68% center` on mobile, where the crop is severe.
+
+**Removed as "heavy":** the technology strip and the availability status pill. `src/data/technologies.ts`
+is kept for the separate Technologies row of brief §11 block 7; `STATUS_PILL` was deleted outright,
+which also disposes of an unverified availability claim.
+
+**Still TODO in the copy:**
+
+- The paragraph claims ongoing maintenance after launch — unverified service scope (Inputs needed #1)
+- `src/data/technologies.ts` is seeded with the six technologies *this repository* verifiably uses,
+  which is not the same as the stack offered to clients (Inputs needed #5). Not currently rendered
+- The eyebrow uses INK at 70%, not the SILVER the brief suggests: SILVER on MIST measures 1.63:1 and
+  would be unreadable on a light hero
 
 ### 4b. Services
 - [ ] Card grid reusing `Card`, one message per service, identical card structure throughout

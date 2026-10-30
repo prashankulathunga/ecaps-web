@@ -18,11 +18,11 @@ function RouteFallback() {
 
 function RootLayout() {
 	return (
-		<div className="min-h-dvh">
+		<>
 			<Suspense fallback={<RouteFallback />}>
 				<Outlet />
 			</Suspense>
-		</div>
+		</>
 	)
 }
 

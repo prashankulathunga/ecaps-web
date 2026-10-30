@@ -102,7 +102,10 @@
 
     --background: var(--color-mist);
     --foreground: var(--color-ink);
-    --card: #ffffff;
+    /* Card = MIST, separated by a SILVER border, not by fill. White would
+       be a fourth colour (brief §3) and separates worse: 1.11:1 edge
+       contrast vs 1.63:1 for the border. */
+    --card: var(--color-mist);
     --card-foreground: var(--color-ink);
     --popover: #ffffff;
     --popover-foreground: var(--color-ink);
@@ -111,7 +114,9 @@
     --secondary: color-mix(in srgb, var(--color-ink) 6%, transparent);
     --secondary-foreground: var(--color-ink);
     --muted: color-mix(in srgb, var(--color-ink) 4%, transparent);
-    --muted-foreground: color-mix(in srgb, var(--color-ink) 60%, transparent);
+    /* 70%, not the brief's 60%: INK at 60% on MIST measures 4.14:1 and
+       fails AA for normal text. 70% measures 5.66:1. */
+    --muted-foreground: color-mix(in srgb, var(--color-ink) 70%, transparent);
     --accent: color-mix(in srgb, var(--color-ink) 6%, transparent);
     --accent-foreground: var(--color-ink);
     --destructive: #8c1d18;
@@ -148,7 +153,7 @@
     --secondary: color-mix(in srgb, var(--color-mist) 10%, transparent);
     --secondary-foreground: var(--color-mist);
     --muted: color-mix(in srgb, var(--color-mist) 8%, transparent);
-    --muted-foreground: color-mix(in srgb, var(--color-mist) 60%, transparent);
+    --muted-foreground: color-mix(in srgb, var(--color-mist) 70%, transparent);
     --accent: color-mix(in srgb, var(--color-mist) 10%, transparent);
     --accent-foreground: var(--color-mist);
     --destructive: #f2b8b5;
@@ -191,8 +196,10 @@
         *::before,
         *::after {
             animation-duration: 0.01ms !important;
+            animation-delay: 0ms !important;
             animation-iteration-count: 1 !important;
             transition-duration: 0.01ms !important;
+            transition-delay: 0ms !important;
             scroll-behavior: auto !important;
         }
     }
@@ -217,4 +224,50 @@
         transform: none;
         transition: none;
     }
+}
+
+/* ---------------------------------------------------------------------------
+   Hero entrance — brief §8 and §10: slow fade-in of text, then image.
+   CSS only; the global prefers-reduced-motion block above neutralises both.
+   --------------------------------------------------------------------------- */
+@keyframes hero-rise {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes hero-settle {
+    from {
+        transform: scale(1.04);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes hero-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Staggered by an inline animation-delay at the call site. */
+@utility hero-rise {
+    animation: hero-rise 600ms var(--ease-brand) both;
+}
+
+@utility hero-settle {
+    animation: hero-settle 1200ms var(--ease-brand) both;
+}
+
+@utility hero-fade {
+    animation: hero-fade 600ms var(--ease-brand) both;
 }

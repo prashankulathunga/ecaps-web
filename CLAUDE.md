@@ -64,7 +64,7 @@ npm run preview   # preview the production build
 - Add components with the CLI only when needed: `npx shadcn@latest add <component>`.
 - Map the brand to shadcn CSS variables in `src/index.css`:
   - `--background` = MIST, `--foreground` = INK, `--primary` = INK, `--primary-foreground` = MIST
-  - `--border` and `--input` = SILVER, `--muted-foreground` = INK at 60% opacity
+  - `--border` and `--input` = SILVER, `--muted-foreground` = INK at **70%** opacity (not 60%: measured 4.14:1 on MIST, which fails AA for normal text; 70% measures 5.66:1)
   - `--radius` = 12px for small elements and inputs. Cards and panels use the explicit tokens `rounded-(--radius-card)` (24px) and `rounded-(--radius-panel)` (32px); buttons are pill (`9999px`). **Do not use `rounded-3xl` for cards** — the `@theme` multiplier makes it 26.4px at a 12px base, not the 24px the brief specifies
 - Do NOT leave shadcn at its default look. Adjust each component (radius, height, spacing, hover) to match `/docs/design-brief.md`.
 - Keep shadcn files in `src/components/ui`. Build custom pieces on top of them in other folders; do not edit them without a reason.
@@ -145,4 +145,6 @@ Track progress as a checklist in `/docs/PLAN.md`. Update it after each task.
 - 2026-10-30: **No `react-helmet-async`** — React 19 native document metadata via `src/components/Seo.tsx`.
 - 2026-10-30: **Framer Motion deferred.** CSS transitions plus the `useReveal` IntersectionObserver hook cover everything brief §8 allows. Install `motion` only when a specific effect genuinely needs it.
 - 2026-10-30: **TypeScript `strict` enabled** in `tsconfig.app.json` / `tsconfig.node.json`. It was absent despite the stated stack, which is why `any` had slipped into `Container.tsx`.
+- 2026-10-31: **Cards are MIST with a 1px SILVER border**, not white. White is a fourth colour (brief §3 allows only INK/MIST/SILVER and their tints) and separates worse — 1.11:1 edge contrast vs 1.63:1 for the border. Because the border is the card's only separation, it uses SILVER at full opacity, not the "low opacity" brief §7 suggests.
+- 2026-10-31: **`--muted-foreground` is INK at 70%**, overriding the brief's 60%, which measures 4.14:1 on MIST and fails WCAG AA for normal text. Verified with `src/lib/contrast.ts`.
 - 2026-10-30: **`vite-react-ssg` rejected.** It cannot install alongside `react-router-dom` v7 (`ERESOLVE`; no published version supports v7). Prerendering goes through React Router framework mode instead — see `/docs/PLAN.md`.

@@ -1,29 +1,26 @@
 import { Link } from "react-router-dom"
-import Seo from "@/components/Seo"
-import Container from "@/components/layout/Container"
+import PageWrapper from "@/components/layout/PageWrapper"
+import Section from "@/components/layout/Section"
+import { Button } from "@/components/ui/button"
 
 function NotFound() {
 	return (
-		<>
-			<Seo
-				title="Page not found"
-				description="This page does not exist."
-				noindex
-			/>
-			<Container className="py-24">
+		<PageWrapper
+			title="Page not found"
+			description="This page does not exist."
+			noindex
+		>
+			<Section>
 				<p className="text-caption text-foreground/70">404</p>
 				<h1 className="mt-2 text-h2">Page not found</h1>
 				<p className="mt-4 max-w-[60ch] text-body text-foreground/80">
 					The page you asked for does not exist or has moved.
 				</p>
-				<Link
-					to="/"
-					className="mt-8 inline-block text-body underline-offset-4 hover:underline"
-				>
+				<Button className="mt-10" render={<Link to="/" />}>
 					Back to home
-				</Link>
-			</Container>
-		</>
+				</Button>
+			</Section>
+		</PageWrapper>
 	)
 }
 
