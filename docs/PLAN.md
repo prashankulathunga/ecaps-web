@@ -3,7 +3,7 @@
 Progress checklist for the build order in `CLAUDE.md`. Update after each task (Definition of done).
 Read `/docs/design-brief.md` before any UI work — it wins over any quick idea.
 
-**Status:** Phases 0-2 done. Phase 3 built, awaiting review. Card surface and `--muted-foreground` decided 2026-10-31 (see Phase 2). Prerendering deferred by decision on 2026-10-30 — was **blocked** — `vite-react-ssg` cannot install alongside `react-router-dom` v7 (see Phase 1). Awaiting a decision on how per-page OG tags are produced.
+**Status:** Phases 0-3 done. Phase 4a in progress — hero built, remaining Home blocks blocked on content. Card surface and `--muted-foreground` decided 2026-10-31 (see Phase 2). Prerendering deferred by decision on 2026-10-30 — was **blocked** — `vite-react-ssg` cannot install alongside `react-router-dom` v7 (see Phase 1). Awaiting a decision on how per-page OG tags are produced.
 
 ---
 
@@ -164,9 +164,52 @@ Every page follows the same loop: typed data file in `/src/data` → sections �
 
 ### 4a. Home
 - [ ] The 9 blocks of brief §11, in order: Navbar, Hero, What we do (3-4 service cards), Numbers strip, Featured projects + "View all", How we work (3-4 steps), Technologies logo row, closing CTA on INK, Footer
-- [ ] Hero: full-width cinematic background with dark overlay, short confident headline, one-line support text, primary + secondary button. Image `fetchpriority="high"`, explicit width and height, AVIF or WebP under 200KB
-- [ ] Propose 3 tagline options for selection before building the hero
+- [x] **Hero built**, then **redesigned 2026-10-31** to a full-bleed photograph with the page colour rising over it. No panel, no inset, no radius: the image runs edge to edge and dissolves into MIST at the bottom, so hero and page read as one surface. Real `<img>` with `fetchPriority`, explicit 2400×1358, `alt=""`, srcset + matching `imagesrcset` preload in `index.html`
+- [x] Propose 3 tagline options for selection before building the hero — **option B chosen 2026-10-31**
 - [ ] A visitor understands what ECAPS CODE does within 3 seconds
+
+### 4a notes — hero
+
+**Image.** `src/assets/hero.jpg` was 1.3 MB at 4084×2310, far over the 200 KB budget. Converted with
+`cwebp` (already on the machine, no dependency added) into `public/` so the preload can use a stable
+unhashed URL: `hero.webp` **108 KB** (2400×1358) and `hero-900.webp` **27 KB** (900×510). The original
+JPEG is untouched.
+
+**Colour.** The photo is in colour with a saturated yellow bouquet, breaking brief §3/§13, and brief §10
+specifies a black-and-white hero. Resolved with `filter: grayscale(1)` in CSS — zero bytes, zero
+dependencies, one line to revert.
+
+**Composition and contrast (redesigned).** With the bottom resolving to MIST, light text no longer
+works there, so the hero is light-toned and **all hero text is INK** — which also meant the navbar's
+dark-overlay styling had to go: over the hero it now drops only its background, and the type stays INK
+in both states.
+
+Gradient stops were set from a measurement rather than by eye. Sampling the photo's mean luma with
+`ffmpeg`:
+
+| Region | Mean luma |
+|---|---|
+| Lower-left, under the text block | **93/255** (darker than it looks) |
+| Bottom-left, under the buttons | 110/255 |
+| Top strip, under the navbar | 121/255 |
+
+At 93/255, INK body text needs at least **29% MIST coverage** to clear AA 4.5:1. The stops
+(`from-mist 0% → via-mist/90 38% → transparent 85%`) put ~59% coverage under the topmost text line,
+which measures about **7.9:1**. A second light wash at the top keeps the navbar legible over the
+121/255 region (~7.9:1 at the bar's lower edge). `object-position` is `58% center` on desktop and
+`68% center` on mobile, where the crop is severe.
+
+**Removed as "heavy":** the technology strip and the availability status pill. `src/data/technologies.ts`
+is kept for the separate Technologies row of brief §11 block 7; `STATUS_PILL` was deleted outright,
+which also disposes of an unverified availability claim.
+
+**Still TODO in the copy:**
+
+- The paragraph claims ongoing maintenance after launch — unverified service scope (Inputs needed #1)
+- `src/data/technologies.ts` is seeded with the six technologies *this repository* verifiably uses,
+  which is not the same as the stack offered to clients (Inputs needed #5). Not currently rendered
+- The eyebrow uses INK at 70%, not the SILVER the brief suggests: SILVER on MIST measures 1.63:1 and
+  would be unreadable on a light hero
 
 ### 4b. Services
 - [ ] Card grid reusing `Card`, one message per service, identical card structure throughout

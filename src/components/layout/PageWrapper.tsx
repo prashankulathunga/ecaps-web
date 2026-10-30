@@ -11,6 +11,11 @@ type PageWrapperProps = {
 	/** Route path, for canonical and og:url. */
 	path?: string
 	noindex?: boolean
+	/**
+	 * The page opens with a full-height hero that the navbar sits over, so
+	 * skip the fixed-header offset and let the navbar go transparent.
+	 */
+	heroOverlay?: boolean
 	children: ReactNode
 }
 
@@ -23,6 +28,7 @@ function PageWrapper({
 	description,
 	path,
 	noindex,
+	heroOverlay = false,
 	children,
 }: PageWrapperProps) {
 	return (
@@ -40,8 +46,9 @@ function PageWrapper({
 				Skip to content
 			</a>
 			<div className="flex min-h-dvh flex-col">
-				<Navbar />
-				<main id="main" className="flex-1">
+				<Navbar overlay={heroOverlay} />
+				{/* Navbar is fixed, so non-hero pages need the 64px offset. */}
+				<main id="main" className={heroOverlay ? "flex-1" : "flex-1 pt-16"}>
 					{children}
 				</main>
 				<Footer />

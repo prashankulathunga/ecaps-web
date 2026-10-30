@@ -196,8 +196,10 @@
         *::before,
         *::after {
             animation-duration: 0.01ms !important;
+            animation-delay: 0ms !important;
             animation-iteration-count: 1 !important;
             transition-duration: 0.01ms !important;
+            transition-delay: 0ms !important;
             scroll-behavior: auto !important;
         }
     }
@@ -222,4 +224,50 @@
         transform: none;
         transition: none;
     }
+}
+
+/* ---------------------------------------------------------------------------
+   Hero entrance — brief §8 and §10: slow fade-in of text, then image.
+   CSS only; the global prefers-reduced-motion block above neutralises both.
+   --------------------------------------------------------------------------- */
+@keyframes hero-rise {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes hero-settle {
+    from {
+        transform: scale(1.04);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes hero-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Staggered by an inline animation-delay at the call site. */
+@utility hero-rise {
+    animation: hero-rise 600ms var(--ease-brand) both;
+}
+
+@utility hero-settle {
+    animation: hero-settle 1200ms var(--ease-brand) both;
+}
+
+@utility hero-fade {
+    animation: hero-fade 600ms var(--ease-brand) both;
 }
