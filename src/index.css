@@ -5,6 +5,51 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ---------------------------------------------------------------------------
+   Brand tokens — design-brief.md §3, §4, §6, §8
+   Three colours only. Tints are expressed as opacity of these three.
+   --------------------------------------------------------------------------- */
+@theme {
+    --color-ink: #202124;
+    --color-mist: #f1f3f4;
+    --color-silver: #bdc1c6;
+
+    /* Type scale — brief §4 */
+    --text-hero: clamp(44px, 7vw, 88px);
+    --text-hero--line-height: 1.05;
+    --text-hero--letter-spacing: -0.025em;
+    --text-hero--font-weight: 600;
+
+    --text-h2: clamp(32px, 4.5vw, 56px);
+    --text-h2--line-height: 1.1;
+    --text-h2--letter-spacing: -0.02em;
+    --text-h2--font-weight: 600;
+
+    --text-h3: clamp(24px, 2.5vw, 28px);
+    --text-h3--line-height: 1.25;
+    --text-h3--letter-spacing: -0.01em;
+    --text-h3--font-weight: 600;
+
+    --text-body: clamp(17px, 1.2vw, 18px);
+    --text-body--line-height: 1.6;
+    --text-body--font-weight: 400;
+
+    --text-caption: 14px;
+    --text-caption--line-height: 1.45;
+    --text-caption--font-weight: 400;
+
+    /* Radius — brief §6. Explicit values, never derived, so they cannot drift. */
+    --radius-card: 24px;
+    --radius-panel: 32px;
+    --radius-pill: 9999px;
+
+    /* Motion — brief §8 */
+    --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Container — brief §5 */
+    --container-site: 1200px;
+}
+
 @theme inline {
     --font-heading: var(--font-sans);
     --font-sans: 'Inter Variable', sans-serif;
@@ -39,6 +84,9 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
+    /* shadcn/Base UI internals only. Cards and panels must use
+       rounded-(--radius-card) / rounded-(--radius-panel) instead: at a 12px
+       base, --radius-3xl is 26.4px, not the 24px the brief specifies. */
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -48,87 +96,125 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Light sections — MIST page background, INK text */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --radius: 12px;
+
+    --background: var(--color-mist);
+    --foreground: var(--color-ink);
+    --card: #ffffff;
+    --card-foreground: var(--color-ink);
+    --popover: #ffffff;
+    --popover-foreground: var(--color-ink);
+    --primary: var(--color-ink);
+    --primary-foreground: var(--color-mist);
+    --secondary: color-mix(in srgb, var(--color-ink) 6%, transparent);
+    --secondary-foreground: var(--color-ink);
+    --muted: color-mix(in srgb, var(--color-ink) 4%, transparent);
+    --muted-foreground: color-mix(in srgb, var(--color-ink) 60%, transparent);
+    --accent: color-mix(in srgb, var(--color-ink) 6%, transparent);
+    --accent-foreground: var(--color-ink);
+    --destructive: #8c1d18;
+    --border: var(--color-silver);
+    --input: var(--color-silver);
+    --ring: var(--color-ink);
+    --chart-1: var(--color-ink);
+    --chart-2: color-mix(in srgb, var(--color-ink) 75%, transparent);
+    --chart-3: color-mix(in srgb, var(--color-ink) 55%, transparent);
+    --chart-4: color-mix(in srgb, var(--color-ink) 35%, transparent);
+    --chart-5: var(--color-silver);
+    --sidebar: var(--color-mist);
+    --sidebar-foreground: var(--color-ink);
+    --sidebar-primary: var(--color-ink);
+    --sidebar-primary-foreground: var(--color-mist);
+    --sidebar-accent: color-mix(in srgb, var(--color-ink) 6%, transparent);
+    --sidebar-accent-foreground: var(--color-ink);
+    --sidebar-border: var(--color-silver);
+    --sidebar-ring: var(--color-ink);
 }
 
+/* Dark (INK) sections — brief §3: sections alternate INK / MIST for rhythm.
+   Applied per-section via the Section wrapper's tone="ink" prop (Phase 3),
+   not as a site-wide theme switch. */
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --background: var(--color-ink);
+    --foreground: var(--color-mist);
+    --card: color-mix(in srgb, var(--color-mist) 6%, transparent);
+    --card-foreground: var(--color-mist);
+    --popover: var(--color-ink);
+    --popover-foreground: var(--color-mist);
+    --primary: var(--color-mist);
+    --primary-foreground: var(--color-ink);
+    --secondary: color-mix(in srgb, var(--color-mist) 10%, transparent);
+    --secondary-foreground: var(--color-mist);
+    --muted: color-mix(in srgb, var(--color-mist) 8%, transparent);
+    --muted-foreground: color-mix(in srgb, var(--color-mist) 60%, transparent);
+    --accent: color-mix(in srgb, var(--color-mist) 10%, transparent);
+    --accent-foreground: var(--color-mist);
+    --destructive: #f2b8b5;
+    --border: color-mix(in srgb, var(--color-silver) 24%, transparent);
+    --input: color-mix(in srgb, var(--color-silver) 32%, transparent);
+    --ring: var(--color-silver);
+    --chart-1: var(--color-mist);
+    --chart-2: color-mix(in srgb, var(--color-mist) 75%, transparent);
+    --chart-3: color-mix(in srgb, var(--color-mist) 55%, transparent);
+    --chart-4: color-mix(in srgb, var(--color-mist) 35%, transparent);
+    --chart-5: var(--color-silver);
+    --sidebar: var(--color-ink);
+    --sidebar-foreground: var(--color-mist);
+    --sidebar-primary: var(--color-mist);
+    --sidebar-primary-foreground: var(--color-ink);
+    --sidebar-accent: color-mix(in srgb, var(--color-mist) 10%, transparent);
+    --sidebar-accent-foreground: var(--color-mist);
+    --sidebar-border: color-mix(in srgb, var(--color-silver) 24%, transparent);
+    --sidebar-ring: var(--color-silver);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+    body {
+        @apply bg-background text-foreground antialiased;
     }
-  html {
-    @apply font-sans;
+    html {
+        @apply font-sans;
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+    }
+    /* Brief §8: always respect prefers-reduced-motion. */
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
     }
 }
 
-@utility border-o {
- @apply border border-red-700 
+@utility reveal {
+    /* Fade-up on scroll — brief §8: 24px distance, once per element.
+       Paired with the useReveal hook, which adds data-revealed. */
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+        opacity 600ms var(--ease-brand),
+        transform 600ms var(--ease-brand);
+
+    &[data-revealed="true"] {
+        opacity: 1;
+        transform: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
 }
