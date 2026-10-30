@@ -11,7 +11,7 @@ function Header() {
 				<span className="text-sm font-semibold tracking-tight">
 					ECAPS CODE
 				</span>
-				<span className="text-caption text-muted-foreground">
+				<span className="text-caption text-foreground/70">
 					Navbar — Phase 3
 				</span>
 			</Container>

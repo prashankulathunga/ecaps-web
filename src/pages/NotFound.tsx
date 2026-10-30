@@ -11,9 +11,9 @@ function NotFound() {
 				noindex
 			/>
 			<Container className="py-24">
-				<p className="text-caption text-muted-foreground">404</p>
+				<p className="text-caption text-foreground/70">404</p>
 				<h1 className="mt-2 text-h2">Page not found</h1>
-				<p className="mt-4 max-w-[60ch] text-body text-muted-foreground">
+				<p className="mt-4 max-w-[60ch] text-body text-foreground/80">
 					The page you asked for does not exist or has moved.
 				</p>
 				<Link

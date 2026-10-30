@@ -32,7 +32,7 @@ function PagePlaceholder({
 			/>
 			<Container className="py-24">
 				<h1 className="text-h2">{title}</h1>
-				<p className="mt-4 text-body text-muted-foreground">
+				<p className="mt-4 text-body text-foreground/80">
 					Placeholder route. Built in {phase}.
 				</p>
 			</Container>

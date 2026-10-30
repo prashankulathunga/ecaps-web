@@ -9,7 +9,7 @@ import Container from "./Container"
 function RouteFallback() {
 	return (
 		<Container className="py-24">
-			<p className="text-body text-muted-foreground" role="status">
+			<p className="text-body text-foreground/80" role="status">
 				Loading…
 			</p>
 		</Container>

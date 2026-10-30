@@ -3,7 +3,7 @@
 Progress checklist for the build order in `CLAUDE.md`. Update after each task (Definition of done).
 Read `/docs/design-brief.md` before any UI work — it wins over any quick idea.
 
-**Status:** Phase 0 done. Phase 1 done except prerendering, which is **blocked** — `vite-react-ssg` cannot install alongside `react-router-dom` v7 (see Phase 1). Awaiting a decision on how per-page OG tags are produced.
+**Status:** Phases 0 and 1 done (committed). Phase 2 built and awaiting approval. Prerendering deferred by decision on 2026-10-30 — was **blocked** — `vite-react-ssg` cannot install alongside `react-router-dom` v7 (see Phase 1). Awaiting a decision on how per-page OG tags are produced.
 
 ---
 
@@ -89,16 +89,40 @@ Also worth knowing before choosing: `react-router-dom@7.18.5` is a thin wrapper 
 
 Route `/design-system`. **Must be approved before any real page is built.**
 
-- [ ] Color swatches: INK / MIST / SILVER plus allowed opacity tints, each with its contrast ratio shown
-- [ ] Full type scale rendered at real sizes
-- [ ] Button matrix: primary / secondary / link-CTA, on both light and dark sections, every state including `focus-visible`
-- [ ] Card, input and tag samples at their specified radii
-- [ ] Spacing ruler showing the allowed 8 / 16 / 24 / 32 / 48 / 64 / 96 / 128 scale
-- [ ] Motion demos: fade-up, hover lift, image scale, with a reduced-motion note
-- [ ] Route marked `noindex` so it ships without polluting search results
-- [ ] Screenshots at 375 / 768 / 1440 → **Commit now**, then wait for explicit approval
+- [x] Color swatches: INK / MIST / SILVER plus allowed opacity tints, each with its contrast ratio shown
+- [x] Full type scale rendered at real sizes
+- [x] Button matrix: primary / secondary / link-CTA, on both light and dark sections, every state including `focus-visible`
+- [x] Card, input and tag samples at their specified radii
+- [x] Spacing ruler showing the allowed 8 / 16 / 24 / 32 / 48 / 64 / 96 / 128 scale
+- [x] Motion demos: fade-up, hover lift, image scale, with a reduced-motion note
+- [x] Route marked `noindex` so it ships without polluting search results
+- [ ] **Screenshots at 375 / 768 / 1440 — NOT DONE.** No browser automation is available in this environment and Playwright is not a planned dependency, so rule 4 could not be satisfied. Substituted a server-render check (`renderToString`) which proves the page builds and runs without runtime errors, but proves nothing about layout. **Visual review is on the owner, or approve adding Playwright as a devDependency.**
+- [ ] Owner approval of this page → then **Commit now**
 
-> **Open design question to settle on this page:** brief §3 sets the page background to MIST while §7 allows cards to be MIST too — identical fill, so cards would disappear. Needs a decision: card = white, or card = MIST with a 1px SILVER border. Both options will be shown side by side.
+### Two decisions this page surfaces
+
+Both shown side by side on the page, with ratios measured by `src/lib/contrast.ts` (WCAG 2.1 relative luminance), not asserted.
+
+**1. Card surface.** Brief §3 makes the page MIST and §7 allows cards to be MIST too — identical fill, so an unbordered card disappears. Neither candidate reaches the 3:1 WCAG 1.4.11 suggests for a meaningful non-text boundary:
+
+| Candidate | Edge contrast vs MIST | Problem |
+|---|---|---|
+| A. White card (`#FFFFFF`) | **1.11:1** | Weakest separation of the two, *and* white is a fourth colour — brief §3 allows only INK/MIST/SILVER and their tints, §7 says cards are MIST or INK |
+| B. MIST card + 1px SILVER border | **1.63:1** | Border is the only separation, but it stays inside the palette and separates better |
+
+Recommendation: **B**, as the only brief-compliant option and the better-separating one. `--card` is currently `#FFFFFF` from Phase 1 and would change to MIST.
+
+**2. `--muted-foreground` fails AA.** `CLAUDE.md` mandates INK at 60%; measured on MIST that is **4.14:1**, under the 4.5:1 AA floor for normal text. Measured alternatives:
+
+| Opacity | On MIST | Verdict |
+|---|---|---|
+| INK 100% | 14.46:1 | AAA |
+| INK 80% | 7.84:1 | AAA — the brief's own body-copy value (§4) |
+| INK 70% | 5.66:1 | AA comfortably |
+| INK 60% (current token) | **4.14:1** | **Fails AA for normal text** |
+| SILVER | 1.63:1 | Decorative only — never text |
+
+Recommendation: move `--muted-foreground` to **INK 70%**. Changing a token needs approval (rule 8), so the token is still 60%; body and caption copy was switched to `text-foreground/80` and `/70` in the meantime. On INK sections MIST at 60% measures 6.06:1 and is fine.
 
 ## Phase 3 — Shared components
 
