@@ -6,6 +6,8 @@ This repo is the official company website. A visitor should understand what ECAP
 
 **Before ANY UI work, read `/docs/design-brief.md`. It is the source of truth for look and feel.**
 
+> **Reading the brief on a Vite stack.** The brief specifies `next/font` (§4, §9), `next/image` (§9) and "prefer server components" (§9). These are Next.js-only and this project is React + Vite. Translate, do not re-litigate: `next/font` → `@fontsource-variable/inter` (already installed, `display: swap`); `next/image` + `priority` → plain `<img>` with explicit `width`/`height` and `fetchpriority="high"` on the hero, `loading="lazy"` elsewhere; server components → not available, keep client JS small instead. Everything else in the brief applies as written.
+
 ## Workflow rules (always follow)
 1. **Plan first.** For any task bigger than one file, propose a plan and wait for my approval before coding.
 2. **One task at a time.** Finish, verify, then stop. Do not start the next phase on your own.
@@ -28,14 +30,14 @@ This repo is the official company website. A visitor should understand what ECAP
 ## Tech stack
 - **React + Vite + TypeScript** (strict mode)
 - **Tailwind CSS** with brand colors as design tokens
-- **shadcn/ui** (Radix based) for UI components, customized to match the design brief
+- **shadcn/ui** (**Base UI** based, style `base-vega` — not Radix) for UI components, customized to match the design brief
 - **React Router** for pages
 - **react-hook-form + Zod** for forms and validation
 - **Framer Motion** only where CSS is not enough (scroll reveal, page transitions)
 - **Lucide React** for icons (one icon set, one stroke width)
-- **react-helmet-async** for per-page title and meta tags
+- **React 19 native document metadata** for per-page title and meta tags, via `src/components/Seo.tsx` (not `react-helmet-async`: unmaintained, React 19 peer conflicts, and React 19 hoists `<title>` / `<meta>` on its own)
 - **Font:** Inter via `@fontsource-variable/inter`
-- **Back-end (contact form):** small separate Node.js + Express API in `/server` (Zod validation, Resend or Nodemailer, optional PostgreSQL + Prisma). Vite is front-end only, so the form needs this API.
+- **Back-end (contact form):** a **serverless function** at `/api/contact` on the same Vercel/Netlify deploy (Zod validation, Resend, Cloudflare Turnstile + honeypot). No separate `/server` Express app, and no Prisma/PostgreSQL — a form that sends email needs no database.
 - **Deploy:** Vercel or Netlify for the front-end (with SPA fallback to `index.html`); API on a small server or serverless function.
 
 ## Commands
@@ -63,7 +65,7 @@ npm run preview   # preview the production build
 - Map the brand to shadcn CSS variables in `src/index.css`:
   - `--background` = MIST, `--foreground` = INK, `--primary` = INK, `--primary-foreground` = MIST
   - `--border` and `--input` = SILVER, `--muted-foreground` = INK at 60% opacity
-  - `--radius` = 12px (cards use `rounded-3xl` = 24px, large panels 32px, buttons pill)
+  - `--radius` = 12px for small elements and inputs. Cards and panels use the explicit tokens `rounded-(--radius-card)` (24px) and `rounded-(--radius-panel)` (32px); buttons are pill (`9999px`). **Do not use `rounded-3xl` for cards** — the `@theme` multiplier makes it 26.4px at a 12px base, not the 24px the brief specifies
 - Do NOT leave shadcn at its default look. Adjust each component (radius, height, spacing, hover) to match `/docs/design-brief.md`.
 - Keep shadcn files in `src/components/ui`. Build custom pieces on top of them in other folders; do not edit them without a reason.
 - Use design tokens and Tailwind theme values. Never hardcode hex colors inside components.
@@ -82,7 +84,7 @@ npm run preview   # preview the production build
   /data            -> services, projects, site content (typed objects)
   /styles          -> index.css (tokens, global styles)
   App.tsx, main.tsx, routes.tsx
-/server            -> contact form API (Node + Express)
+/api               -> contact form serverless function (replaces /server)
 /public            -> favicon, og-image, robots.txt, sitemap.xml
 /docs              -> PLAN.md, design-brief.md, design-links.md
 ```
@@ -116,7 +118,7 @@ Track progress as a checklist in `/docs/PLAN.md`. Update it after each task.
 - Lazy load routes with `React.lazy` and `Suspense`.
 - Images: WebP or AVIF, always set `width` and `height`, `loading="lazy"` (hero uses `fetchpriority="high"`).
 - Motion: follow the design brief (400 to 700ms, `cubic-bezier(0.22, 1, 0.36, 1)`). Respect `prefers-reduced-motion`.
-- Every page sets its own title and meta description with react-helmet-async.
+- Every page sets its own title and meta description with `src/components/Seo.tsx` (React 19 native metadata).
 - Forms: validate on both client (Zod) and server (Zod). Never trust client input.
 - Secrets only in `.env` files. Never commit `.env`. Keep a `.env.example`.
 
@@ -136,3 +138,11 @@ Track progress as a checklist in `/docs/PLAN.md`. Update it after each task.
 (Add new decisions here so they are not forgotten between sessions.)
 - 2026-10-30: Stack set to React + Vite + Tailwind + shadcn/ui. Plan Mode first, then foundation.
 - 2026-10-30: Claude never commits or manages branches. It tells me "Commit now" with a suggested message, and I commit manually.
+- 2026-10-30: **Stay on React + Vite.** The brief's `next/font` / `next/image` / server-component lines are translated to Vite equivalents (see the note at the top), not treated as a reason to switch framework.
+- 2026-10-30: **shadcn/ui here is Base UI based**, style `base-vega`, per `components.json` and `src/components/ui/button.tsx`. Not Radix.
+- 2026-10-30: **Placeholder content is typed and marked `TODO`** in `/src/data`. Never invent company facts, numbers, client names or testimonials; a page is done only once real copy lands.
+- 2026-10-30: **Contact form = serverless function + Resend + Cloudflare Turnstile and a honeypot.** Supersedes the `/server` Express API. No in-memory rate limiting — serverless instances are stateless, so a per-IP counter enforces nothing.
+- 2026-10-30: **No `react-helmet-async`** — React 19 native document metadata via `src/components/Seo.tsx`.
+- 2026-10-30: **Framer Motion deferred.** CSS transitions plus the `useReveal` IntersectionObserver hook cover everything brief §8 allows. Install `motion` only when a specific effect genuinely needs it.
+- 2026-10-30: **TypeScript `strict` enabled** in `tsconfig.app.json` / `tsconfig.node.json`. It was absent despite the stated stack, which is why `any` had slipped into `Container.tsx`.
+- 2026-10-30: **`vite-react-ssg` rejected.** It cannot install alongside `react-router-dom` v7 (`ERESOLVE`; no published version supports v7). Prerendering goes through React Router framework mode instead — see `/docs/PLAN.md`.
