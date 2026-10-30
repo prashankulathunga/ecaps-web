@@ -3,7 +3,7 @@
 Progress checklist for the build order in `CLAUDE.md`. Update after each task (Definition of done).
 Read `/docs/design-brief.md` before any UI work — it wins over any quick idea.
 
-**Status:** Phases 0 and 1 done (committed). Phase 2 built and awaiting approval. Prerendering deferred by decision on 2026-10-30 — was **blocked** — `vite-react-ssg` cannot install alongside `react-router-dom` v7 (see Phase 1). Awaiting a decision on how per-page OG tags are produced.
+**Status:** Phases 0-2 done. Phase 3 built, awaiting review. Card surface and `--muted-foreground` decided 2026-10-31 (see Phase 2). Prerendering deferred by decision on 2026-10-30 — was **blocked** — `vite-react-ssg` cannot install alongside `react-router-dom` v7 (see Phase 1). Awaiting a decision on how per-page OG tags are produced.
 
 ---
 
@@ -128,14 +128,34 @@ Recommendation: move `--muted-foreground` to **INK 70%**. Changing a token needs
 
 Built on top of `src/components/ui/` primitives. One commit per component group.
 
-- [ ] `Button` variants extended on the existing Base UI `ui/button.tsx`: pill, 48px height, 0 28px padding, inverted on dark sections
-- [ ] `Navbar` — sticky, slim 64px, blurred translucent background, logo left, 4-5 links + one CTA right; clean mobile menu with focus trap and Esc to close
-- [ ] `Footer` — grouped columns (Company / Services / Contact), contact details, social links, copyright
-- [ ] `Section` wrapper with a `tone="ink" | "mist"` prop to drive the alternating light/dark rhythm
-- [ ] `Card` — 24px radius, 32px padding, 1px SILVER border at low opacity, no heavy shadow
-- [ ] `WhatsAppButton` — fixed bottom-right, round, INK background, accessible label
-- [ ] `PageWrapper` composing Navbar + Footer + Seo
-- [ ] Screenshots at 3 widths → **Commit now**
+- [x] `Button` variants extended on the existing Base UI `ui/button.tsx`: pill, 48px height, 0 28px padding, inverted on dark sections
+- [x] `Navbar` — sticky, slim 64px, blurred translucent background, logo left, 4-5 links + one CTA right; clean mobile menu with focus trap and Esc to close
+- [x] `Footer` — grouped columns (Company / Services / Contact), contact details, social links, copyright
+- [x] `Section` wrapper with a `tone="ink" | "mist"` prop to drive the alternating light/dark rhythm
+- [x] `Card` — 24px radius, 32px padding, 1px SILVER border at low opacity, no heavy shadow
+- [x] `WhatsAppButton` — fixed bottom-right, round, INK background, accessible label
+- [x] `PageWrapper` composing Navbar + Footer + Seo
+- [ ] **Screenshots at 3 widths — NOT DONE**, same reason as Phase 2: no browser automation available. Substituted a `renderToString` check across Home, DesignSystem and NotFound — all render with navbar, skip link, footer and `<title>`, and the dev-only placeholder notes correctly disappear in a production build. Layout itself is unverified
+- [ ] Owner review of the components → then **Commit now**
+
+### Phase 3 notes
+
+**Mobile menu costs ~25.6 kB gzip.** It uses Base UI's `Dialog` in modal mode, which supplies the focus trap, Esc-to-close and scroll lock instead of hand-rolling them. The price is a new `PageWrapper` chunk of 75.8 kB raw / **25.6 kB gzip**, loaded with the first route and so effectively on the critical path. Attribution is a before/after delta, not an isolated measurement: no such chunk existed in the Phase 2 build and `Dialog` is the only heavy import Phase 3 added. Three ways to respond, for Phase 6 or sooner:
+
+| Option | Cost |
+|---|---|
+| Keep as is | 25.6 kB gzip on first load; correct a11y for free |
+| `React.lazy` the mobile dialog, load on first menu open | Keeps Base UI's correctness, removes it from first load. Desktop users never download it |
+| Hand-roll the menu | ~1 kB, but the focus trap, scroll lock and ARIA become ours to get right |
+
+Recommendation: **lazy-load the dialog** — it keeps the accessibility guarantees and the bundle target. Not done yet; it is a change to approved components.
+
+**Two gaps that need owner input, not code:**
+
+- **Navbar has 3 links, brief §7 asks for 4-5** (Services, Projects, About, plus the Contact CTA). There are no further pages to link. Either that is fine, or a page is missing from the sitemap
+- **Logo is a text wordmark.** Brief §10 describes an ECAPS CODE logo; no logo file exists in `src/assets`. Needs the asset (related to Inputs needed #6)
+
+**Added beyond the checklist:** a `/privacy` route pointing at a placeholder, so the Footer's Company column does not ship a link that 404s before Phase 4f. A skip-to-content link in `PageWrapper` for keyboard users. `src/data/navigation.ts` for nav structure.
 
 ## Phase 4 — Pages (priority order)
 
