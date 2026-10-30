@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
@@ -25,6 +24,8 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    /* CLAUDE.md tech stack: TypeScript strict mode */
+    "strict": true,
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
