@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Dialog } from "@base-ui/react/dialog"
 import { Menu, X } from "lucide-react"
-import { NavLink } from "react-router-dom"
+import { Link } from "react-router-dom"
 import Container from "./Container"
 import { Button } from "@/components/ui/button"
 import { NAV_CTA, NAV_LINKS } from "@/data/navigation"
@@ -17,11 +17,14 @@ type NavbarProps = {
 	overlay?: boolean
 }
 
-const linkClasses = ({ isActive }: { isActive: boolean }) =>
-	cn(
-		"rounded-(--radius) text-base transition-colors duration-200 ease-brand focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring",
-		isActive ? "text-foreground" : "text-foreground/70 hover:text-foreground",
-	)
+/**
+ * Plain string rather than NavLink's isActive callback: every link now points
+ * at an in-page anchor on "/", and isActive matches on pathname only, so all
+ * of them would render as active at once. Scroll-spy highlighting, if wanted,
+ * is its own task.
+ */
+const linkClasses =
+	"rounded-(--radius) text-base text-foreground/70 transition-colors duration-200 ease-brand hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
 
 /**
  * Navbar — brief §7: slim 64px, blurred translucent, logo left, links plus
@@ -59,7 +62,7 @@ function Navbar({ overlay = false }: NavbarProps) {
 		>
 			<Container className="flex h-16 items-center gap-6">
 				<div className="flex flex-1 items-center">
-					<NavLink
+					<Link
 						to="/"
 						className="rounded-(--radius) focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
 					>
@@ -70,20 +73,20 @@ function Navbar({ overlay = false }: NavbarProps) {
 							height={24}
 							className="h-6 w-auto"
 						/>
-					</NavLink>
+					</Link>
 				</div>
 
 				<nav aria-label="Main" className="hidden items-center gap-8 md:flex">
 					{NAV_LINKS.map((link) => (
-						<NavLink key={link.to} to={link.to} className={linkClasses}>
+						<Link key={link.to} to={link.to} className={linkClasses}>
 							{link.label}
-						</NavLink>
+						</Link>
 					))}
 				</nav>
 
 				<div className="flex flex-1 items-center justify-end gap-3">
 					<Button
-						render={<NavLink to={NAV_CTA.to} />}
+						render={<Link to={NAV_CTA.to} />}
 						className="hidden md:inline-flex"
 					>
 						{NAV_CTA.label}
@@ -126,19 +129,17 @@ function Navbar({ overlay = false }: NavbarProps) {
 
 								<nav aria-label="Mobile" className="mt-10 flex flex-col gap-6">
 									{NAV_LINKS.map((link) => (
-										<NavLink
+										<Link
 											key={link.to}
 											to={link.to}
 											onClick={closeMenu}
-											className={({ isActive }) =>
-												cn(linkClasses({ isActive }), "text-h3")
-											}
+											className={cn(linkClasses, "text-h3")}
 										>
 											{link.label}
-										</NavLink>
+										</Link>
 									))}
 									<Button
-										render={<NavLink to={NAV_CTA.to} onClick={closeMenu} />}
+										render={<Link to={NAV_CTA.to} onClick={closeMenu} />}
 										className="mt-4 w-full"
 									>
 										{NAV_CTA.label}

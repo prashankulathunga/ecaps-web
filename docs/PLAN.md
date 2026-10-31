@@ -3,7 +3,12 @@
 Progress checklist for the build order in `CLAUDE.md`. Update after each task (Definition of done).
 Read `/docs/design-brief.md` before any UI work — it wins over any quick idea.
 
-**Status:** Phases 0-3 done. Phase 4a in progress — hero built, remaining Home blocks blocked on content. Card surface and `--muted-foreground` decided 2026-10-31 (see Phase 2). Prerendering deferred by decision on 2026-10-30 — was **blocked** — `vite-react-ssg` cannot install alongside `react-router-dom` v7 (see Phase 1). Awaiting a decision on how per-page OG tags are produced.
+**Status:** Phases 0-3 done. **Restructured to a single landing page on 2026-10-31** — the Services,
+Projects, About, Contact, DesignSystem and NotFound pages were removed and every remaining block is a
+section of `/`. Navbar, Hero and Footer are built; sections 2-6 are not. Card surface and
+`--muted-foreground` decided 2026-10-31 (see Phase 2). Prerendering is now far less pressing: with one
+real URL, a single set of OG tags in `index.html` covers every shared link, so the React Router
+framework-mode work recorded in Phase 1 can likely be dropped — **needs a decision**.
 
 ---
 
@@ -157,18 +162,125 @@ Recommendation: **lazy-load the dialog** — it keeps the accessibility guarante
 
 **Added beyond the checklist:** a `/privacy` route pointing at a placeholder, so the Footer's Company column does not ship a link that 404s before Phase 4f. A skip-to-content link in `PageWrapper` for keyboard users. `src/data/navigation.ts` for nav structure.
 
-## Phase 4 — Pages (priority order)
+## Phase 4 — Landing page sections
 
-Finish one page completely — responsive and polished — before starting the next.
-Every page follows the same loop: typed data file in `/src/data` → sections → `Seo` title and description → screenshots at 375/768/1440 → lint + build → update this file → **Commit now**.
+**Restructured 2026-10-31: this is a single landing page, not a multi-page site.** Everything that was
+a separate page is now a section of `/`, reached through an in-page anchor. Routes are `/` and
+`/privacy` only; unknown URLs redirect to `/` because there is no 404 page by decision.
 
-### 4a. Home
-- [ ] The 9 blocks of brief §11, in order: Navbar, Hero, What we do (3-4 service cards), Numbers strip, Featured projects + "View all", How we work (3-4 steps), Technologies logo row, closing CTA on INK, Footer
+Sections are built **one at a time**. Each follows the same loop: typed data file in `/src/data` →
+section component in `/src/components/sections` → anchor id matching `src/data/navigation.ts` →
+screenshots at 375/768/1440 → lint + build → update this file → **Commit now**.
+
+### Section order
+
+| # | Section | Anchor | Status |
+|---|---|---|---|
+| 1 | Navbar · Hero · Footer | — | **built** |
+| 2 | What we do | `#what-we-do` | blocked — service copy must be re-supplied |
+| 3 | How we work | `#how-we-work` | ready to build |
+| 4 | Technologies | `#technologies` | blocked — needs the client-facing tech list |
+| 5 | Contact (form) | `#contact` | ready to build; backend is Phase 5 |
+| 6 | Closing CTA | — | ready to build |
+| — | Numbers strip | — | **skipped** by decision — needs real counts and years |
+| — | Featured projects | — | **skipped** by decision — needs real project names and images |
+
+### Removed in the restructure
+
+Deleted: `src/pages/Services.tsx`, `Projects.tsx`, `About.tsx`, `Contact.tsx`, `DesignSystem.tsx`,
+`NotFound.tsx`, and `src/data/services.ts`. All but the Services page and its data file are recoverable
+from history (`2eab39c` and earlier); the Services page was uncommitted and **discarded by decision**,
+so its three categories and twelve examples are gone and the copy must be supplied again for section 2.
+
+`/design-system` is gone with it, so there is no longer a live reference for tokens, type scale and
+component states while building the remaining sections. It survives in commit `2d87679` if it is wanted
+back.
+
+`Navbar` was switched from `NavLink` to plain `Link`: `isActive` matches on pathname only, so with every
+link pointing at an anchor on `/` all of them rendered as active at once. Active-section highlighting
+now needs scroll-spy, which is deliberately not built — its own task if wanted.
+
+### Landing page checklist
+- [ ] Brief §11 blocks, in order: Navbar, Hero, **What we do**, How we work, Technologies, Contact, closing CTA on INK, Footer — the Numbers strip and Featured projects blocks are skipped
 - [x] **Hero built**, then **redesigned 2026-10-31** to a full-bleed photograph with the page colour rising over it. No panel, no inset, no radius: the image runs edge to edge and dissolves into MIST at the bottom, so hero and page read as one surface. Real `<img>` with `fetchPriority`, explicit 2400×1358, `alt=""`, srcset + matching `imagesrcset` preload in `index.html`
 - [x] Propose 3 tagline options for selection before building the hero — **option B chosen 2026-10-31**
 - [ ] A visitor understands what ECAPS CODE does within 3 seconds
 
-### 4a notes — hero
+### Section 2 — "What we do"
+
+Planned 2026-10-31, then **revised the same day for the single-page restructure**. Not yet built, and
+now **blocked**: the three categories and twelve examples were discarded with `src/data/services.ts`,
+so the copy has to be supplied again (Inputs needed #1).
+
+*Layout*
+
+- [ ] `<Section tone="mist" id="what-we-do">` directly after the hero, so the rhythm is dark → light.
+  96px vertical padding on mobile, 128px from desktop; Container at 1200px
+- [ ] Header block, left-aligned: eyebrow, H2 (brief scale, max 2 lines, INK), one short paragraph
+  (INK 70%, 60-70 characters per line)
+- [ ] Card grid, 24px gap: 1 column mobile, 2 tablet, **3 desktop** — one card per real category, no
+  invented fourth service
+- [ ] Card fill follows the resolved card-colour decision — MIST with a SILVER border, **settled
+  2026-10-31**
+
+*Card anatomy — identical structure, equal height*
+
+- [ ] Reuse `Card` from Phase 3 (24px radius, 32px padding, no heavy shadow)
+- [ ] Lucide icon at one stroke width inside a 48px square at 12px radius (brief §6)
+- [ ] Title at H3, then a summary of at most two lines at INK 70%
+- [ ] `h-full` plus a column layout keeps heights equal across unequal text lengths
+- [ ] **Cards are not links.** With no Services page there is nowhere to go, so the "Learn more →"
+  affordance and the whole-card anchor are both dropped. This also disposes of the nested-anchor
+  accessibility trap the earlier plan had to work around
+
+*Semantics and accessibility*
+
+- [ ] `<section aria-labelledby>` referencing the H2's id — not `aria-label`, which would duplicate
+  the heading text
+- [ ] `<ul>` / `<li>` for the grid, one `<li>` per card
+- [ ] Icon marked `aria-hidden`; the card's accessible name comes from the title
+
+*Motion — CSS only*
+
+- [ ] Cards fade up 24px once on scroll via the existing `Reveal` wrapper, 80ms stagger, 600ms,
+  `cubic-bezier(0.22, 1, 0.36, 1)`
+- [ ] Hover, 250ms: `translateY(-2px)`, border strengthens, icon square tone shifts one step
+- [ ] `prefers-reduced-motion` neutralises the reveal, the stagger delay and the hover lift
+
+*Data*
+
+- [ ] New `src/data/services.ts` holding the three categories. The previous file was deleted in the
+  restructure, so this starts fresh from re-supplied copy
+
+*Quality gate*
+
+- [ ] Screenshots at 375 / 768 / 1440 before "done" — currently not possible here, see the Phase 2
+  and 3 notes; needs either owner review or an approved Playwright devDependency
+- [ ] `npm run lint` + `npm run build` pass → **Commit now**
+
+*Decisions*
+
+1. **Three cards, 3-up on desktop.** One per real category. A fourth would have meant inventing a
+   service, which rule 7 forbids. Brief §11 allows 3-4, so three is compliant
+2. **Border: SILVER 30% at rest, SILVER 60% on hover — owner's decision**, taken after the measured
+   contrast was raised. For the record, against the MIST page background:
+
+   | Border | Contrast vs MIST |
+   |---|---|
+   | SILVER 30% (rest, chosen) | **1.15:1** |
+   | SILVER 60% (hover, chosen) | **1.32:1** |
+   | SILVER 100% (Phase 3 decision) | 1.63:1 |
+   | INK 55% | 3.58:1 — the only option clearing WCAG 1.4.11's 3:1 |
+
+   Consequence to watch: at 1.15:1 the card edge is close to invisible against MIST, which is the
+   condition the Phase 2 card decision was made to avoid. The restructure removed the Services page
+   that would have shown SILVER 100% beside it, so there is no longer a mismatch to reconcile — but
+   the edge is still barely visible and is worth a look on a real screen
+3. **Copy: option A** — eyebrow "WHAT WE DO", H2 "Build it. Run it. / Make it smarter.", paragraph
+   "Websites that bring the work in, systems that keep it moving, and AI where it genuinely earns its
+   place."
+
+### Hero notes
 
 **Image.** `src/assets/hero.jpg` was 1.3 MB at 4084×2310, far over the 200 KB budget. Converted with
 `cwebp` (already on the machine, no dependency added) into `public/` so the preload can use a stable
@@ -211,25 +323,50 @@ which also disposes of an unverified availability claim.
 - The eyebrow uses INK at 70%, not the SILVER the brief suggests: SILVER on MIST measures 1.63:1 and
   would be unreadable on a light hero
 
-### 4b. Services
-- [ ] Card grid reusing `Card`, one message per service, identical card structure throughout
+### Carried over from the deleted Services page
 
-### 4c. Projects / Portfolio
-- [ ] Large visual cards, same card shape everywhere, lazy-loaded images with fixed dimensions, "View all" pattern
+**No generated images.** The palette is strictly INK/MIST/SILVER (brief §3) and §13 rules out the
+"generic gradient AI website" look; generated imagery would fight both. Lucide icons at one stroke
+width, type and whitespace carry the page instead, and cost nothing against the LCP budget.
 
-### 4d. About
-- [ ] Company and founder story. No invented facts, numbers or client names
+**Kept:** `src/components/Reveal.tsx`, a wrapper around the `useReveal` hook. The hook returns a single
+ref, so it cannot be called inside `.map()`; the wrapper makes scroll reveal usable per card, with an
+80ms stagger across each group. Every remaining section uses it.
 
-### 4e. Contact
-- [ ] Form UI with `react-hook-form` + Zod, contact details, WhatsApp link. Submit handler wired in Phase 5
+**Kept:** hash-anchor scrolling in `RootLayout` plus `scroll-mt-16` on `Section`. Written for
+`/services#ai`, it now does the heavier job of driving all in-page navigation from the navbar.
 
-### 4f. Privacy Policy
-- [ ] `/privacy` route — what the contact form collects, how it is used, who it is sent through (Resend, plus the chosen abuse control if it processes IPs), retention, and how to request deletion
-- [ ] Link it from the `Footer` Company column built in Phase 3
-- [ ] Content must describe what the site actually does — no boilerplate claiming cookies, analytics or tracking that is not present. Needs a contact email for data requests
+### Section 3 — How we work
+- [ ] `id="how-we-work"`, 3-4 steps per brief §11, alternating tone against section 2
+- [ ] Describe process only — no delivery times, team sizes or counts, none of which are established
+- [ ] Ready to build; no blocked inputs
 
-### 4g. NotFound
-- [ ] 404 route, consistent with the rest of the site
+### Section 4 — Technologies
+- [ ] `id="technologies"`, clean logo or wordmark row per brief §11 block 7
+- [ ] **Blocked:** `src/data/technologies.ts` currently lists the six technologies *this repository*
+  verifiably uses, which is not the same as the stack offered to clients (Inputs needed #5)
+
+### Section 5 — Contact
+- [ ] `id="contact"`, form UI with `react-hook-form` + Zod, contact details, WhatsApp link
+- [ ] Submit handler wired in Phase 5; the form is built against the shared Zod schema from the start
+- [ ] Ready to build; the backend is what waits
+
+### Section 6 — Closing CTA
+- [ ] INK section so the page ends dark, per brief §11 block 8
+- [ ] One headline, one line of support text, one primary button. Ready to build
+
+### Skipped by decision 2026-10-31
+- **Numbers strip** — needs real projects delivered, years active, technologies and client counts.
+  Rule 7 forbids inventing them, so the block stays out rather than shipping placeholders
+- **Featured projects** — needs real project names, one-liners and images
+
+### Privacy page
+- [ ] `/privacy` — what the contact form collects, how it is used, who it is sent through (Resend, and
+  Cloudflare Turnstile, which processes visitor IPs), retention, and how to request deletion
+- [ ] Already linked from the Footer Company column
+- [ ] Content must describe what the site actually does — no boilerplate claiming cookies, analytics or
+  tracking that is not present. Needs a contact email for data requests
+- [ ] Currently renders `PagePlaceholder`, which is why that component survived the restructure
 
 ## Phase 5 — Contact API
 

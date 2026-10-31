@@ -33,7 +33,7 @@ function Section({
 			id={id}
 			aria-label={ariaLabel}
 			className={cn(
-				"py-24 md:py-32",
+				"scroll-mt-16 py-24 md:py-32",
 				tone === "ink" && "dark bg-background text-foreground",
 				className,
 			)}

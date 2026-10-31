@@ -1,20 +1,21 @@
 import { lazy } from "react"
-import type { RouteObject } from "react-router-dom"
+import { Navigate, type RouteObject } from "react-router-dom"
 import RootLayout from "@/components/layout/RootLayout"
 
 // Lazy per route so each page ships its own chunk (CLAUDE.md code standards).
 const Home = lazy(() => import("@/pages/Home"))
-const Services = lazy(() => import("@/pages/Services"))
-const Projects = lazy(() => import("@/pages/Projects"))
-const About = lazy(() => import("@/pages/About"))
-const Contact = lazy(() => import("@/pages/Contact"))
 const Privacy = lazy(() => import("@/pages/Privacy"))
-const DesignSystem = lazy(() => import("@/pages/DesignSystem"))
-const NotFound = lazy(() => import("@/pages/NotFound"))
 
 /**
  * Route objects, deliberately in plain data form so prerendering can consume
  * the same list without restructuring (docs/PLAN.md, Phase 1).
+ *
+ * Single landing page: the site is one page at "/" plus the privacy policy.
+ * Everything that used to be its own route is a section of Home, reached
+ * through an in-page anchor (see src/data/navigation.ts).
+ *
+ * There is no 404 page by decision, so unknown URLs redirect to the landing
+ * page rather than rendering nothing.
  */
 export const routes: RouteObject[] = [
 	{
@@ -22,13 +23,8 @@ export const routes: RouteObject[] = [
 		element: <RootLayout />,
 		children: [
 			{ index: true, element: <Home /> },
-			{ path: "services", element: <Services /> },
-			{ path: "projects", element: <Projects /> },
-			{ path: "about", element: <About /> },
-			{ path: "contact", element: <Contact /> },
 			{ path: "privacy", element: <Privacy /> },
-			{ path: "design-system", element: <DesignSystem /> },
-			{ path: "*", element: <NotFound /> },
+			{ path: "*", element: <Navigate to="/" replace /> },
 		],
 	},
 ]
