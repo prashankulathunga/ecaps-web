@@ -1,7 +1,11 @@
 /**
  * Navigation structure. Labels are generic site sections, not company claims,
- * so nothing here is invented. Service names stay out until Inputs needed #1
- * lands (workflow rule 7).
+ * so nothing here is invented.
+ *
+ * The site is a single landing page, so these point at in-page anchors rather
+ * than routes. Each `to` must match the `id` of the matching section on Home;
+ * RootLayout handles the scroll, and Section carries scroll-mt for the fixed
+ * 64px navbar.
  */
 
 export type NavLink = {
@@ -9,14 +13,14 @@ export type NavLink = {
 	to: string
 }
 
-/** Brief §7: 4-5 links plus one CTA. We have four routes besides Contact. */
+/** Brief §7: 4-5 links plus one CTA. */
 export const NAV_LINKS: readonly NavLink[] = [
-	{ label: "Services", to: "/services" },
-	{ label: "Projects", to: "/projects" },
-	{ label: "About", to: "/about" },
+	{ label: "What we do", to: "/#what-we-do" },
+	{ label: "How we work", to: "/#how-we-work" },
+	{ label: "Technologies", to: "/#technologies" },
 ]
 
-export const NAV_CTA: NavLink = { label: "Contact us", to: "/contact" }
+export const NAV_CTA: NavLink = { label: "Contact us", to: "/#contact" }
 
 export type FooterColumn = {
 	title: string
@@ -25,16 +29,11 @@ export type FooterColumn = {
 
 export const FOOTER_COLUMNS: readonly FooterColumn[] = [
 	{
-		title: "Company",
-		links: [
-			{ label: "About", to: "/about" },
-			{ label: "Projects", to: "/projects" },
-			{ label: "Privacy policy", to: "/privacy" },
-		],
+		title: "Explore",
+		links: [...NAV_LINKS, NAV_CTA],
 	},
 	{
-		title: "Services",
-		// TODO (Inputs needed #1): list individual services once confirmed.
-		links: [{ label: "All services", to: "/services" }],
+		title: "Company",
+		links: [{ label: "Privacy policy", to: "/privacy" }],
 	},
 ]

@@ -78,7 +78,7 @@ npm run preview   # preview the production build
     /ui            -> shadcn components
     /layout        -> Navbar, Footer, PageWrapper, WhatsAppButton
     /sections      -> Hero, ServicesPreview, Stats, ProjectsPreview, Process, CTA
-  /pages           -> Home, Services, Projects, About, Contact, NotFound
+  /pages           -> Home (the landing page), Privacy
   /hooks           -> custom hooks
   /lib             -> utils, constants, validation schemas
   /data            -> services, projects, site content (typed objects)
@@ -89,21 +89,30 @@ npm run preview   # preview the production build
 /docs              -> PLAN.md, design-brief.md, design-links.md
 ```
 
-## Pages (priority order)
-1. **Home**
-2. **Services**
-3. **Projects / Portfolio**
-4. **About**
-5. **Contact**
+## Site shape — single landing page
+Routes are **`/` and `/privacy` only**. Unknown URLs redirect to `/`; there is no 404 page by decision.
 
-Build and finish one page completely (responsive, polished) before starting the next.
+Everything else is a **section of the landing page**, reached by an in-page anchor:
+
+1. Navbar · Hero · Footer — **built**
+2. What we do — `#what-we-do`
+3. How we work — `#how-we-work`
+4. Technologies — `#technologies`
+5. Contact, with form — `#contact`
+6. Closing CTA (dark)
+
+The Numbers strip and Featured projects blocks of brief §11 are **skipped** until real figures and real
+projects are supplied — rule 7 forbids inventing them.
+
+Build and finish one section completely (responsive, polished) before starting the next.
 Keep text content in `/src/data` so it is easy to edit later.
+Anchor ids must match `src/data/navigation.ts`; `Section` carries `scroll-mt-16` for the fixed navbar.
 
 ## Build order
 1. **Foundation:** Vite + TS + Tailwind + shadcn init, design tokens, font, router, base layout
-2. **Design system page:** `/design-system` demo (colors, type scale, buttons, cards, inputs). I must approve it before any real page.
+2. ~~**Design system page:** `/design-system` demo~~ — **removed 2026-10-31** in the single-page restructure. Done and approved first; recoverable from commit `2d87679` if a live token reference is wanted again.
 3. **Shared components:** Navbar, Footer, Button variants, Section wrapper, Card, WhatsApp button
-4. **Pages** in the priority order above
+4. **Landing page sections** in the order under "Site shape" above
 5. **Back-end:** contact form API, email sending, spam protection
 6. **Quality:** SEO, performance, accessibility, testing
 7. **Deploy** and release `v1.0.0`
@@ -148,3 +157,7 @@ Track progress as a checklist in `/docs/PLAN.md`. Update it after each task.
 - 2026-10-31: **Cards are MIST with a 1px SILVER border**, not white. White is a fourth colour (brief §3 allows only INK/MIST/SILVER and their tints) and separates worse — 1.11:1 edge contrast vs 1.63:1 for the border. Because the border is the card's only separation, it uses SILVER at full opacity, not the "low opacity" brief §7 suggests.
 - 2026-10-31: **`--muted-foreground` is INK at 70%**, overriding the brief's 60%, which measures 4.14:1 on MIST and fails WCAG AA for normal text. Verified with `src/lib/contrast.ts`.
 - 2026-10-30: **`vite-react-ssg` rejected.** It cannot install alongside `react-router-dom` v7 (`ERESOLVE`; no published version supports v7). Prerendering goes through React Router framework mode instead — see `/docs/PLAN.md`.
+- 2026-10-31: **Single landing page.** Routes cut to `/` and `/privacy`; unknown URLs redirect to `/`. The Services, Projects, About, Contact, DesignSystem and NotFound pages were deleted and their blocks become sections of `/` reached by in-page anchors. The Numbers strip and Featured projects blocks are skipped until real figures exist.
+- 2026-10-31: **`src/data/services.ts` and the Services page were discarded uncommitted**, by decision, so the three service categories and twelve examples must be supplied again before the "What we do" section can be built.
+- 2026-10-31: **Navbar uses plain `Link`, not `NavLink`.** With every link pointing at an anchor on `/`, `NavLink`'s `isActive` (pathname-only) marked them all active at once. Active-section highlighting would need scroll-spy and is deliberately not built.
+- 2026-10-31: **Prerendering is probably moot now.** One real URL means one set of OG tags in `index.html` covers every shared link. The React Router framework-mode plan is on hold pending a decision rather than cancelled.
